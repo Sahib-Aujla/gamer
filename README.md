@@ -1,80 +1,109 @@
-# 🏗 Scaffold-ETH 2
+# Decentralized Game Account Exchange (DGAE)
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+## 1. Overview
+The **Decentralized Game Account Exchange (DGAE)** is a blockchain-based platform that enables players to buy and sell Web3 game accounts in a secure, transparent, and decentralized manner. It leverages Solidity smart contracts for on-chain account exchange and Next.js for the user interface.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+### Key Features
+- On-chain account exchange powered by Solidity.  
+- Transaction settlement in **USDC stablecoin**.  
+- **EIP-712 signed message verification** for both sellers and buyers.  
+- Future support for **off-chain account trades**.  
 
-⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
+---
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## 2. Core Workflow
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+### Seller Flow
+1. Seller lists a game account for sale by submitting:  
+   - Account metadata (unique ID, game identifier).  
+   - Sale price in USDC.  
+   - A signed message verifying ownership of the account (**EIP-712 standard**).  
+2. Smart contract verifies the signature to ensure authenticity.  
+3. Listing becomes available in the marketplace.  
 
-## Requirements
+### Buyer Flow
+1. Buyer selects a listed game account.  
+2. Buyer signs a transaction with:  
+   - Agreement to purchase at the listed price.  
+   - Confirmation signature (**EIP-712**).  
+3. Smart contract validates buyer’s signed message and ensures payment in USDC.  
+4. On successful validation, ownership rights transfer to the buyer.  
 
-Before you begin, you need to install the following tools:
+### Exchange Settlement
+- The smart contract holds **USDC** until both parties’ signatures are verified.  
+- Once verified, the seller receives **USDC**, and the buyer obtains proof of account transfer.  
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+---
 
-## Quickstart
+## 3. Smart Contract Architecture (Solidity)
 
-To get started with Scaffold-ETH 2, follow the steps below:
+### Key Components
+- **AccountRegistry**: Maintains mappings of game accounts to owners.  
+- **ExchangeContract**: Facilitates listing, purchase, and verification of accounts.  
+- **SignatureVerifier**: Uses **EIP-712 standard** for message verification.  
 
-1. Install dependencies if it was skipped in CLI:
+### Solidity Flow
+- `listAccount(accountId, price, signature)` → Creates a listing after verifying seller signature.  
+- `buyAccount(listingId, signature)` → Buyer confirms purchase.  
 
-```
-cd my-dapp-example
-yarn install
-```
+Contract validates:  
+- Seller signed ownership.  
+- Buyer signed confirmation.  
+- Payment in **USDC** is sufficient.  
 
-2. Run a local network in the first terminal:
+Funds released to seller, ownership transferred to buyer.  
 
-```
-yarn chain
-```
+---
 
-This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
+## 4. Frontend (Next.js)
 
-3. On a second terminal, deploy the test contract:
+### Features
+- **Wallet Connection**: MetaMask, WalletConnect, Coinbase Wallet.  
+- **Account Listing Dashboard**:  
+  - List account with metadata.  
+  - Upload signed ownership proof.  
+- **Marketplace**:  
+  - Browse available accounts.  
+  - Filter by game, price, popularity.  
+- **Buyer Flow**:  
+  - Sign purchase intent message.  
+  - Confirm transaction.  
+- **Transaction History & Status**  
 
-```
-yarn deploy
-```
+---
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
+## 5. Future Roadmap
 
-4. On a third terminal, start your NextJS app:
+### Phase 1 — Core Exchange (MVP)
+- Smart contract with listing and purchase flow.  
+- USDC integration.  
+- Web3-enabled Next.js frontend.  
 
-```
-yarn start
-```
+### Phase 2 — Enhanced Security & UX
+- Escrow with dispute resolution.  
+- Integration with popular Web3 games.  
+- Gasless transactions via meta-transactions.  
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+### Phase 3 — Off-Chain Trade Support
+- Off-chain trading with on-chain settlement proofs.  
+- Integration with third-party gaming APIs.  
 
-Run smart contract test with `yarn foundry:test`
+### Phase 4 — Governance & DAO
+- Governance for fees, rules, and roadmap.  
 
-- Edit your smart contracts in `packages/foundry/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/foundry/script`
+---
 
+## 6. Technology Stack
+- **Smart Contracts**: Solidity, Hardhat/Foundry  
+- **Frontend**: Next.js, React.js  
+- **Wallet Integration**: Ethers.js, Wagmi, RainbowKit  
+- **Stablecoin**: USDC (ERC20)  
+- **Infrastructure**: IPFS/Arweave (metadata storage), Ethereum or L2 (Arbitrum, Polygon)  
 
-## Documentation
+---
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+## 7. Benefits
+- **Trustless exchange**: No centralized authority.  
+- **Stable payments**: USDC ensures price stability.  
+- **Ownership verification**: EIP-712 signed messages prevent fraud.  
+- **Future expansion**: Off-chain trades and DAO governance.  
